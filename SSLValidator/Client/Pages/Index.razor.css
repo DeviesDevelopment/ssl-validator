@@ -1,0 +1,22 @@
+﻿.marquee {
+	margin: 0 auto;
+	white-space: nowrap;
+	overflow: hidden;
+	position: absolute;
+	bottom: 0;
+}
+
+.marquee span {
+	display: inline-block;
+	animation: marquee 20s linear infinite; 
+}
+
+@keyframes marquee {
+	0% {
+		transform: translate(0, 0);
+	}
+
+	100% {
+		transform: translate(-100%, 0);
+	}
+}
