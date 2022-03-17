@@ -1,9 +1,13 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
 @using SSLValidator.Shared
 @inject HttpClient Http
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 
-@if (assessedSSLCertifications == null)
+
+@if (domains == null)
 {
 	<p class="text-center"><em>Loading...</em></p>
 }
@@ -11,80 +15,82 @@ else
 {
 	<h2 class="marquee">
 	<span>
-		<h1>
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-			https://api.smwg.se
-		</h1>
+		<h1></h1>
 	</span>
 </h2>
-	<table class="table">
-	<thead>
-		<tr>
-			<th>Days until expiration</th>
-			<th>Threat level</th>
-			<th>Threat level class</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var assessedSSLCertification in assessedSSLCertifications)
-			{
-				<tr>
-					<td>@assessedSSLCertification.DaysUntilExpiration</td>
-					<td>@assessedSSLCertification.ThreatLevel</td>
-					<td>@assessedSSLCertification.ThreatLevelClass</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-	<p>
-		<button @onclick="TriggerPrompt">Trigger browser window prompt</button>
-	</p>
-
-	<p>
-	@result
-</p>
-
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				...
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save changes</button>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Domain Name</th>
+							<th>Domain Url</th>
+							<th>Days until expired</th>
+							<th>Threat level</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var domain in domains)
+							{
+								<tr>
+									<td>@domain.DomainName</td>
+									<td>@domain.Url</td>
+									<td>@domain.DaysUntilExpiration</td>
+									<td>@domain.ThreatLevel</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+
+				</div>
+				<div class="modal-footer">
+					<div class="d-flex justify-content-between w-100">
+						<button type="button" class="btn btn-outline-success rounded-0">Add Domain</button>
+						<div>
+							<button type="button" class="btn btn-outline-danger rounded-0"
+							data-bs-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-primary rounded-0">Save changes</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 }
 
 @code {
 	private IJSObjectReference? module;
 	private string? result;
-	private Domain[]? assessedSSLCertifications;
+	private List<Domain>? domains;
+	private HubConnection? hubConnection;
 
 	protected override async Task OnInitializedAsync()
 	{
-		assessedSSLCertifications = await Http.GetFromJsonAsync<Domain[]>("AssessedSSLCertificate");
+		hubConnection = new HubConnectionBuilder()
+		.WithUrl(NavigationManager.ToAbsoluteUri("/domainhub"))
+		.Build();
+
+		hubConnection.On<List<Domain>>("ReceiveCurrentDomains", (currentDomains) =>
+		{
+			domains = currentDomains;
+			StateHasChanged();
+		});
+
+		await hubConnection.StartAsync();
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (hubConnection is not null)
+		{
+			await hubConnection.DisposeAsync();
+		}
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -92,6 +98,18 @@ else
 		if (firstRender)
 		{
 			module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/index.js");
+			if (hubConnection is not null)
+			{
+				await hubConnection.SendAsync("GetCurrentDomains", "session-id");
+			}
+		}
+	}
+
+	public async Task GetSomeDomains()
+	{
+		if (hubConnection is not null)
+		{
+			await hubConnection.SendAsync("GetCurrentDomains", "session-id");
 		}
 	}
 

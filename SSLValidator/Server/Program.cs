@@ -1,19 +1,28 @@
 using Microsoft.AspNetCore.ResponseCompression;
 
+using SSLValidator.Server.Hubs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddResponseCompression(opts =>
+{
+	opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+		new[] { "application/octet-stream" });
+});
 builder.Services.AddStackExchangeRedisCache(opt =>
 {
-	opt.Configuration = builder.Configuration.GetValue<string>("redisKey");
+	opt.Configuration = builder.Configuration.GetValue<string>("redis");
 	opt.InstanceName = "sslValidator_";
 });
 
 var app = builder.Build();
 
+app.UseResponseCompression();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -27,7 +36,6 @@ else
 }
 
 app.UseHttpsRedirection();
-
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
@@ -35,6 +43,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<DomainHub>("/domainhub");
 app.MapFallbackToFile("index.html");
 
 app.Run();
