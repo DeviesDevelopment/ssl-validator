@@ -1,0 +1,22 @@
+version: "3.5"
+
+services:
+  SSLValidator:
+    image: sslvalidator
+    container_name: SSLValidator
+    build:
+      context: SSLValidator
+      dockerfile: Server/Dockerfile
+    restart: always
+    ports:
+      - "5224:80"
+    environment:
+      ASPNETCORE_URLS: "http://+"
+      ASPNETCORE_ENVIRONMENT: "Production"
+  redis:
+    image: redis:6.2.6
+    container_name: SSLValidator.redis
+    command: redis-server --requirepass "@cAHRQEHBzFlUptL@2Kt9blOMDrW1RBGzl"
+    ports:
+      - 5003:6379
+    restart: always
