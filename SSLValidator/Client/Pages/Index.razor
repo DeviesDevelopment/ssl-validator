@@ -5,102 +5,102 @@
 
 @if (assessedSSLCertifications == null)
 {
-    <p class="text-center"><em>Loading...</em></p>
+	<p class="text-center"><em>Loading...</em></p>
 }
 else
 {
-    <h2 class="marquee">
-        <span>
-            <h1>
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-                https://api.smwg.se
-            </h1>
-        </span>
-    </h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Days until expiration</th>
-                <th>Threat level</th>
-                <th>Threat level class</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var assessedSSLCertification in assessedSSLCertifications)
-            {
-                <tr>
-                    <td>@assessedSSLCertification.DaysUntilExpiration</td>
-                    <td>@assessedSSLCertification.ThreatLevel</td>
-                    <td>@assessedSSLCertification.ThreatLevelClass</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <p>
-        <button @onclick="TriggerPrompt">Trigger browser window prompt</button> 
-    </p>
+	<h2 class="marquee">
+	<span>
+		<h1>
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+			https://api.smwg.se
+		</h1>
+	</span>
+</h2>
+	<table class="table">
+	<thead>
+		<tr>
+			<th>Days until expiration</th>
+			<th>Threat level</th>
+			<th>Threat level class</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var assessedSSLCertification in assessedSSLCertifications)
+			{
+				<tr>
+					<td>@assessedSSLCertification.DaysUntilExpiration</td>
+					<td>@assessedSSLCertification.ThreatLevel</td>
+					<td>@assessedSSLCertification.ThreatLevelClass</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	<p>
+		<button @onclick="TriggerPrompt">Trigger browser window prompt</button>
+	</p>
 
-    <p>
-        @result
-    </p>
+	<p>
+	@result
+</p>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				...
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
 }
 
 @code {
-    private IJSObjectReference? module;
-    private string? result;
-    private AssessedSSLCertification[]? assessedSSLCertifications;
+	private IJSObjectReference? module;
+	private string? result;
+	private Domain[]? assessedSSLCertifications;
 
-    protected override async Task OnInitializedAsync()
-    {
-        assessedSSLCertifications = await Http.GetFromJsonAsync<AssessedSSLCertification[]>("AssessedSSLCertificate");
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		assessedSSLCertifications = await Http.GetFromJsonAsync<Domain[]>("AssessedSSLCertificate");
+	}
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/index.js");
-        }
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/index.js");
+		}
+	}
 
-    private async Task TriggerPrompt()
-    {
-        result = await Prompt("Provide some text");
-    }
+	private async Task TriggerPrompt()
+	{
+		result = await Prompt("Provide some text");
+	}
 
-    public async ValueTask<string?> Prompt(string message) =>
-        module is not null ? 
-            await module.InvokeAsync<string>("showPrompt", message) : null;
+	public async ValueTask<string?> Prompt(string message) =>
+	module is not null ?
+	await module.InvokeAsync<string>("showPrompt", message) : null;
 }

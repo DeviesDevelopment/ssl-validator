@@ -5,20 +5,20 @@ namespace SSLValidator.Server.Controllers
 {
 	[ApiController]
 	[Route("[controller]")]
-	public class AssessedSSLCertificateController : ControllerBase
+	public class DomainController : ControllerBase
 	{
-		private readonly ILogger<AssessedSSLCertificateController> _logger;
+		private readonly ILogger<DomainController> _logger;
 
-		public AssessedSSLCertificateController(ILogger<AssessedSSLCertificateController> logger)
+		public DomainController(ILogger<DomainController> logger)
 		{
 			_logger = logger;
 		}
 
 		[HttpGet]
-		public IEnumerable<AssessedSSLCertification> Get()
+		public IEnumerable<Domain> Get()
 		{
 			return Enumerable.Range(1, 10)
-				.Select(index => new AssessedSSLCertification(Random.Shared.Next(1, 55)))
+				.Select(index => new Domain("", "", Random.Shared.Next(1, 55)))
 				.ToArray();
 		}
 	}
