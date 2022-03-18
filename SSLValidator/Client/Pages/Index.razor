@@ -6,7 +6,6 @@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
-
 @if (domains == null)
 {
 	<p class="text-center"><em>Loading...</em></p>
@@ -18,11 +17,12 @@ else
 		<h1></h1>
 	</span>
 </h2>
-	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal fade" id="domainModalToggle" tabindex="-1" aria-labelledby="domainModalToggleLabel"
+	aria-hidden="true">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+				<h5 class="modal-title" id="domainModalToggleLabel">Domains</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -47,17 +47,53 @@ else
 							}
 						</tbody>
 					</table>
-
 				</div>
 				<div class="modal-footer">
 					<div class="d-flex justify-content-between w-100">
-						<button type="button" class="btn btn-outline-success rounded-0">Add Domain</button>
+						<button type="button" class="btn btn-outline-success rounded-0"
+						data-bs-target="#addDomainModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal">
+							Add Domain
+						</button>
 						<div>
 							<button type="button" class="btn btn-outline-danger rounded-0"
 							data-bs-dismiss="modal">Close</button>
 							<button type="button" class="btn btn-primary rounded-0">Save changes</button>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="addDomainModalToggle" tabindex="-1" aria-labelledby="addDomainModalToggleLabel"
+	aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addDomainModalToggleLabel">Add domain</h5>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="mb-3">
+							<label for="domainName" class="form-label">Domain Name</label>
+							<input @bind-value="domainPayload.DomainName" type="text" class="form-control" id="domainName"
+							placeholder="Google" required>
+						</div>
+						<div class="mb-3">
+							<label for="domainURL" class="form-label">Domain URL</label>
+							<input @bind-value="domainPayload.URL" type="text" class="form-control" id="domainURL"
+							placeholder="https://google.com" required>
+						</div>
+						@if (!string.IsNullOrWhiteSpace(errorMessage))
+						{
+							<p>
+								@errorMessage
+							</p>
+						}
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-danger rounded-0" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-success rounded-0" @onclick="AddDomain">Add Domain</button>
 				</div>
 			</div>
 		</div>
@@ -69,15 +105,16 @@ else
 	private string? result;
 	private List<Domain>? domains;
 	private HubConnection? hubConnection;
-
 	[Parameter]
 	public string? SessionId { get; set; }
+	private DomainPayload domainPayload = new DomainPayload();
+	private string? errorMessage;
 
 	protected override async Task OnInitializedAsync()
 	{
 		if (SessionId is null)
 		{
-			var sessionIdPath = await Http.GetStringAsync("Domain/GetSessionId");
+			var sessionIdPath = await Http.GetStringAsync("Domain/get-session-id");
 			NavigationManager.NavigateTo("/" + sessionIdPath);
 		}
 
@@ -114,11 +151,16 @@ else
 		}
 	}
 
-	public async Task GetSomeDomains()
+	private async Task AddDomain()
 	{
-		if (hubConnection is not null)
+		var resp = await Http.PostAsync($"Domain/{SessionId}", JsonContent.Create(domainPayload));
+		if (resp.IsSuccessStatusCode)
 		{
-			await hubConnection.SendAsync("GetCurrentDomains", SessionId);
+			domainPayload = new DomainPayload();
+		}
+		else
+		{
+			errorMessage = await resp.Content.ReadAsStringAsync();
 		}
 	}
 

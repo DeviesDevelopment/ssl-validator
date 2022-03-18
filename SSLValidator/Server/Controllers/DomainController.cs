@@ -15,7 +15,7 @@ using SSLValidator.Server.Extensions;
 namespace SSLValidator.Server.Controllers
 {
 	[ApiController]
-	[Route("[controller]/[action]")]
+	[Route("[controller]")]
 	public class DomainController : ControllerBase
 	{
 		private readonly ILogger<DomainController> _logger;
@@ -47,7 +47,7 @@ namespace SSLValidator.Server.Controllers
 			return Ok(domains);
 		}
 
-		[HttpGet]
+		[HttpGet("get-session-id")]
 		public ActionResult<string> GetSessionId()
 		{
 			return Ok(RandomString());
@@ -56,11 +56,16 @@ namespace SSLValidator.Server.Controllers
 		[HttpPost("{sessionId}")]
 		public async Task<ActionResult> Post(string sessionId, [FromBody] DomainPayload payload)
 		{
-			var isURLValid = payload.URL.Contains("https");
-
-			if (!ModelState.IsValid || !isURLValid)
+			if (!ModelState.IsValid)
 			{
 				return BadRequest();
+			}
+
+			var isURLValid = payload.URL.Contains("https");
+
+			if (!isURLValid)
+			{
+				return BadRequest("Wrong URL format supplied, use https:// at start of the url");
 			}
 
 			if (string.IsNullOrWhiteSpace(sessionId))
@@ -82,7 +87,7 @@ namespace SSLValidator.Server.Controllers
 			await _cache.SetRecordAsync(sessionId + "-domains", domains);
 
 			await _domainHubContext.Clients.All.SendAsync("ReceiveCurrentDomains", domains);
-			
+
 			return Ok();
 		}
 
