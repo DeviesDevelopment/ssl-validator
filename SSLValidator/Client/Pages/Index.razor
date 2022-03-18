@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/{sessionId?}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using SSLValidator.Shared
 @inject HttpClient Http
@@ -70,8 +70,17 @@ else
 	private List<Domain>? domains;
 	private HubConnection? hubConnection;
 
+	[Parameter]
+	public string? SessionId { get; set; }
+
 	protected override async Task OnInitializedAsync()
 	{
+		if (SessionId is null)
+		{
+			var sessionIdPath = await Http.GetStringAsync("Domain/GetSessionId");
+			NavigationManager.NavigateTo("/" + sessionIdPath);
+		}
+
 		hubConnection = new HubConnectionBuilder()
 		.WithUrl(NavigationManager.ToAbsoluteUri("/domainhub"))
 		.Build();
@@ -100,7 +109,7 @@ else
 			module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/index.js");
 			if (hubConnection is not null)
 			{
-				await hubConnection.SendAsync("GetCurrentDomains", "session-id");
+				await hubConnection.SendAsync("GetCurrentDomains", SessionId);
 			}
 		}
 	}
@@ -109,7 +118,7 @@ else
 	{
 		if (hubConnection is not null)
 		{
-			await hubConnection.SendAsync("GetCurrentDomains", "session-id");
+			await hubConnection.SendAsync("GetCurrentDomains", SessionId);
 		}
 	}
 
