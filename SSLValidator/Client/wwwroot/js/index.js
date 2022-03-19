@@ -1,8 +1,4 @@
-﻿export function showPrompt(message) {
-	return prompt(message, 'Type anything here');
-}
-
-export function setBackgroundColour(threatLevelClass) {
+﻿export function setBackgroundColour(threatLevelClass) {
 	document.body.className = threatLevelClass;
 }
 
