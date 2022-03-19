@@ -4,7 +4,11 @@
 
 document.addEventListener("keypress", (e) => {
 	if (e.key === 'Enter') {
-		var myModal = new bootstrap.Modal(document.getElementById("domainModalToggle"));
-		myModal.toggle();
+		let modal = window.domainModal;
+		if (modal === undefined) {
+			window.domainModal = new bootstrap.Modal(document.getElementById("domainModalToggle"));
+			modal = window.domainModal;
+		}
+		modal.toggle();
 	}
 })
