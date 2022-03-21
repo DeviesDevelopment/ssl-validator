@@ -104,6 +104,7 @@ else
 	private IJSObjectReference? module;
 	private string? result;
 	private List<Domain>? domains;
+	private string highestDomainExpirationThreatLevelClass = "threat__low";
 	private HubConnection? hubConnection;
 	[Parameter]
 	public string? SessionId { get; set; }
@@ -125,6 +126,19 @@ else
 		hubConnection.On<List<Domain>>("ReceiveCurrentDomains", (currentDomains) =>
 		{
 			domains = currentDomains;
+			var hasAnyHighThreatLevel = domains.Where(d => d.ThreatLevel == DomainExpirationThreatLevel.High).FirstOrDefault();
+			if (hasAnyHighThreatLevel is not null)
+			{
+				highestDomainExpirationThreatLevelClass = hasAnyHighThreatLevel.ThreatLevelClass;
+			}
+			else
+			{
+				var hasAnyMediumThreatLevel = domains.Where(d => d.ThreatLevel == DomainExpirationThreatLevel.Medium).FirstOrDefault();
+				if (hasAnyMediumThreatLevel is not null)
+				{
+					highestDomainExpirationThreatLevelClass = hasAnyMediumThreatLevel.ThreatLevelClass;
+				}
+			}
 			StateHasChanged();
 		});
 

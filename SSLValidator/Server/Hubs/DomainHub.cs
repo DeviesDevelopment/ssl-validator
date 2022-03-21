@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 
 using SSLValidator.Shared;
-using SSLValidator.Server.Services;
 using SSLValidator.Server.Extensions;
 
 namespace SSLValidator.Server.Hubs
