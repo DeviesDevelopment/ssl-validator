@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.ResponseCompression;
+﻿using Microsoft.AspNetCore.ResponseCompression;
 
 using SSLValidator.Server.Hubs;
 
@@ -16,7 +16,7 @@ builder.Services.AddResponseCompression(opts =>
 });
 builder.Services.AddStackExchangeRedisCache(opt =>
 {
-	opt.Configuration = builder.Configuration.GetValue<string>("redis");
+	opt.Configuration = builder.Configuration.GetConnectionString("redis");
 	opt.InstanceName = "sslValidator_";
 });
 
