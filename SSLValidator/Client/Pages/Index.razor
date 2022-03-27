@@ -50,8 +50,13 @@ else
 				</div>
 				<div class="modal-footer">
 					<div class="d-flex justify-content-between w-100">
-						<button type="button" class="btn btn-outline-success rounded-0"
-						data-bs-target="#addDomainModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal">
+						<button type="button" 
+                            class="btn btn-outline-success rounded-0"
+                            data-bs-target="#domainModalToggle"
+                            data-bs-toggle="modal"
+                            data-bs-dismiss="modal"
+                            @onclick="ToggleAddDomainModal"
+                        >
 							Add Domain
 						</button>
 						<div>
@@ -172,6 +177,8 @@ else
 		if (resp.IsSuccessStatusCode)
 		{
 			domainPayload = new DomainPayload();
+            await ToggleAddDomainModal();
+            await SetThreatLevelBackground();
 		}
 		else
 		{
@@ -184,6 +191,14 @@ else
 		if (module is not null)
 		{
 			await module.InvokeVoidAsync("setBackgroundColour", highestDomainExpirationThreatLevelClass);
+		}
+	}
+    
+    private async Task ToggleAddDomainModal()
+	{
+		if (module is not null)
+		{
+			await module.InvokeVoidAsync("toggleAddDomainModal");
 		}
 	}
 }
