@@ -11,22 +11,22 @@ body {
 	/*font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 500;
-	background: #FFFAD5;
+	background: #ccc9c7;
 	color: #000;
 	height: 100vh;
 	overflow: hidden;
 }
 
 .threat__high {
-	background: #733131;
+	background: #962B09;
 }
 
 .threat__medium {
-	background: #EDC42D;
+	background: #B57114;
 }
 
 .threat__low {
-	background: #FFFAD5;
+	background: #ccc9c7;
 }
 
 
