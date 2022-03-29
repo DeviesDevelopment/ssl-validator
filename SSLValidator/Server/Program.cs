@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.ResponseCompression;
 
 using SSLValidator.Server.Hubs;
+using SSLValidator.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
@@ -19,11 +18,12 @@ builder.Services.AddStackExchangeRedisCache(opt =>
 	opt.Configuration = builder.Configuration.GetConnectionString("redis");
 	opt.InstanceName = "sslValidator_";
 });
+builder.Services.AddHostedService<UpdateDomains>();
 
 var app = builder.Build();
 
 app.UseResponseCompression();
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
 	app.UseWebAssemblyDebugging();
@@ -31,7 +31,6 @@ if (app.Environment.IsDevelopment())
 else
 {
 	app.UseExceptionHandler("/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }
 
