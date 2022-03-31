@@ -54,26 +54,41 @@ namespace SSLValidator.Server.Services
 				if (keys.Any())
 				{
 					var parsedKeys = keys.Select(key => key.ToString().Replace("sslValidator_", string.Empty));
-					var cachedDomains = (await Task.WhenAll<byte[]>(parsedKeys.Select(parsedKey => _cache.GetAsync(parsedKey)))).ToList();
+					var cachedDomains = (await Task.WhenAll(parsedKeys.Select(parsedKey => _cache.GetRecordAsync<List<Domain>>(parsedKey)))).ToList();
 					var cachedDomainsWithKey = parsedKeys.Select((key, index) => (key, cachedDomains[index])).ToList();
+					var containsAnyDomains = cachedDomainsWithKey.Any(dk => dk.Item2 is null ? false : dk.Item2.Any());
 
-					cachedDomainsWithKey.ForEach(domain =>
+					if (!containsAnyDomains) return;
+
+					cachedDomainsWithKey.ForEach(domainKey =>
 					{
-						var parsedDomains = JsonSerializer.Deserialize<List<Domain>>(domain.Item2);
-						if (parsedDomains is not null)
+						domainKey.Item2?.ForEach(domain =>
 						{
-							domains.AddRange(parsedDomains);
-						}
+							domain.DaysUntilExpiration = GetSSLCertificateExpirationDate.GetDaysUntilExpirationAsync(domain.Url).Result;
+							var fourWorkingWeeks = 20; // 4 working weeks
+							var twoWorkingWeeks = 10; // 2 working weeks
+							if (domain.DaysUntilExpiration >= fourWorkingWeeks)
+							{
+								domain.ThreatLevel = DomainExpirationThreatLevel.Low;
+							}
+							else if (domain.DaysUntilExpiration > twoWorkingWeeks && domain.DaysUntilExpiration <= fourWorkingWeeks)
+							{
+								domain.ThreatLevel = DomainExpirationThreatLevel.Medium;
+							}
+							else
+							{
+								domain.ThreatLevel = DomainExpirationThreatLevel.High;
+							}
+						});
 					});
-
-					await Task.WhenAll(parsedKeys.Select((key, index) => _cache.SetRecordAsync(key, domains[index])));
-
-					await _domainHubContext.Clients.All.SendAsync("ReceiveCurrentDomains", domains);
+					
+					await Task.WhenAll(parsedKeys.Select((key, index) => _cache.SetRecordAsync(key, cachedDomainsWithKey.Where(d => d.key == key).FirstOrDefault().Item2)));
+					await Task.WhenAll(cachedDomainsWithKey.Select(d => d.Item2).Select(domain => _domainHubContext.Clients.All.SendAsync("ReceiveCurrentDomains", domain)));
 				}
 			}
 			catch (Exception)
 			{
-				throw new Exception("Something went wrong running background service to update domains");
+				Console.Error.WriteLine("Something went wrong running background service to update domains");
 			}
 		}
 	}
