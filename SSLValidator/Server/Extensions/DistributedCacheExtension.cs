@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 
 using System.Text.Json;
 
@@ -15,7 +15,7 @@ namespace SSLValidator.Server.Extensions
 			await cache.SetStringAsync(recordId, jsonData, options);
 		}
 
-		public static async Task<T> GetRecordAsync<T>(this IDistributedCache cache, string recordId)
+		public static async Task<T?> GetRecordAsync<T>(this IDistributedCache cache, string recordId)
 		{
 			var jsonData = await cache.GetStringAsync(recordId);
 			if (string.IsNullOrWhiteSpace(jsonData))
