@@ -3,11 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSLValidator.Server", "SSLValidator\Server\SSLValidator.Server.csproj", "{AE6B4E56-654B-41B4-98CC-FDC84E0495DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSLValidator.Server", "SSLValidator\Server\SSLValidator.Server.csproj", "{AE6B4E56-654B-41B4-98CC-FDC84E0495DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSLValidator.Client", "SSLValidator\Client\SSLValidator.Client.csproj", "{6A29B552-C691-456C-BA75-5B7447354EEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSLValidator.Client", "SSLValidator\Client\SSLValidator.Client.csproj", "{6A29B552-C691-456C-BA75-5B7447354EEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSLValidator.Shared", "SSLValidator\Shared\SSLValidator.Shared.csproj", "{82117FEA-3E80-4AF4-BBA4-9179896C5C76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSLValidator.Shared", "SSLValidator\Shared\SSLValidator.Shared.csproj", "{82117FEA-3E80-4AF4-BBA4-9179896C5C76}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8AA6369E-4106-4C12-8BAC-1C5A886E1F5B}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

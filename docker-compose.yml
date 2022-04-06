@@ -5,13 +5,15 @@ services:
     image: sslvalidator
     container_name: SSLValidator
     build:
-      context: SSLValidator
-      dockerfile: Server/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "5224:80"
+      - "7224:443"
     environment:
-      ASPNETCORE_URLS: "http://+"
+      ASPNETCORE_URLS: "https://+,http://+"
+      ASPNETCORE_HTTPS_PORT: "7224"
       ASPNETCORE_ENVIRONMENT: "Production"
   redis:
     image: redis:6.2.6
