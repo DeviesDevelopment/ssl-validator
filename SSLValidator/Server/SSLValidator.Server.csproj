@@ -16,13 +16,6 @@
     <ProjectReference Include="..\Shared\SSLValidator.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\z\Documents\code\SSLValidator\SSLValidator\Server\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\Users\z\Documents\code\SSLValidator\SSLValidator\Server\.editorconfig" />
-  </ItemGroup>
 
 
 </Project>
