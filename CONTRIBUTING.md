@@ -1,0 +1,1 @@
+[See this](https://github.com/DeviesDevelopment/guidelines)
