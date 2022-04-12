@@ -35,7 +35,6 @@ else
 }
 
 //app.UseHttpsRedirection();
-app.UsePathBase("http://localhost:5224");
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
